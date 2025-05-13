@@ -15,6 +15,7 @@ class Agent(Player):
         super().__init__(color)
         self.agent_type = agent_type
         self.nodes_explored = 0
+        print(f"Agent created: {self.color} {self.agent_type} agent")
 
     def get_random_move(self, hexboard):
         """
@@ -31,7 +32,9 @@ class Agent(Player):
         """
         if self.agent_type == "random":
             legal_moves = hexboard.get_legal_moves(self.color)
-            return random.choice(legal_moves)
+            move = random.choice(legal_moves)
+            print(f"Random move selected: {move}")
+            return move
         else:
             raise ValueError("Invalid agent type")
         
@@ -49,6 +52,7 @@ class Agent(Player):
         hexboard.move_piece(move)
         evaluation = self.min_max(hexboard, not maximizing, depth, alpha, beta, use_alpha_beta)
         hexboard.undo_move(move)
+        print(f"Min-Max worker evaluated move: {move} with score: {evaluation}")
         return (move, evaluation)
 
     def find_min_max_move(self, hexboard, color, use_multiprocessing=True, use_alpha_beta=True):
@@ -56,6 +60,7 @@ class Agent(Player):
             moves = hexboard.get_legal_moves(self.color)
             moves = sorted(moves, key=lambda move: (move.enemy_piece is None, move.enemy_piece))
             maximize = True if color == "white" else False
+            print(f"Min-Max agent calculating move...")
 
         self.nodes_explored = 0  # Reset node counter
 
@@ -69,8 +74,7 @@ class Agent(Player):
 
         # Find the move with the best evaluation
         best_move = max(results, key=lambda x: x[1]) if maximize else min(results, key=lambda x: x[1])
-        
-        #print(f"Total nodes explored: {self.nodes_explored}")
+        print(f"Best Min-Max move selected: {best_move[0]} with evaluation: {best_move[1]}")
         
         return best_move[0]
 
@@ -88,7 +92,6 @@ class Agent(Player):
 
         Returns:
             float: The evaluation score of the best move.
-
         """
         if self.agent_type == "min_max":
             global next_move
@@ -113,6 +116,7 @@ class Agent(Player):
                         alpha = max(alpha, evaluation)
                         if beta <= alpha:
                             break
+                print(f"Maximizing evaluation: {max_evaluation}")
                 return max_evaluation
             else:
                 min_evaluation = float("inf")
@@ -129,4 +133,5 @@ class Agent(Player):
                         beta = min(beta, evaluation)
                         if beta <= alpha:
                             break
+                print(f"Minimizing evaluation: {min_evaluation}")
                 return min_evaluation
