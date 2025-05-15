@@ -125,7 +125,7 @@ class Main():
 
     def add_output(self, text):
         """Add text to the output textbox and print to console for verification"""
-        print(text)  # Also print to console to verify it matches original
+        print(text, flush=True)
         current_text = self.output_textbox.html_text
         if current_text:
             current_text += "<br>" + text
@@ -190,11 +190,18 @@ class Main():
                             self.add_output(f"⏱️  MinMax Move Time: {move_duration:.2f} seconds")
 
                         self.add_output(f"✅ Move: {move}")
+                        self.add_output(self.get_board_text())
+
+                        pygame.event.pump()
+                        self.manager.update(0.05)
+                        self.screen.fill((240, 240, 240))  # Clear the board area
+                        self.draw_board()                  # Draw the updated board
+                        self.manager.draw_ui(self.screen)
+                        pygame.display.update()
+                        time.sleep(0.2)
 
                         opponent = self.player1 if self.current_player == self.player2 else self.player2
                         self.game_over, self.winner = self.hexboard.is_game_over(opponent.color)
-
-                        self.add_output(self.get_board_text())
 
                         if self.game_over:
                             self.add_output(f"\n🏁 Game Over! Winner: {self.winner.upper()}")
